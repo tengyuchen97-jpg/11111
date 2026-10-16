@@ -1,35 +1,35 @@
-姓名：安卓内部版本
+name: Android Build
 
-在……之上:
-推:
-分支机构: [ "主要" ]
-workflow_dispatch:
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
 
-工作:
-建立:
-连续的: Ubuntu-最新
-步骤:
-    - 姓名: 签出代码
-uses: 操作/结帐@v4
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
--姓名: 解压缩源代码
-跑: unzip TengcdTool.zip -d project_source
+    - name: Unzip Source Code
+      run: unzip TengcdTool.zip -d project_source
       
-    - 姓名: 设置JDK17
-uses: 操作/设置-Java@v4
-和……一起:
-java版: '17'
-分布: 'temurin'
-缓存: G拉德尔
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
 
--姓名: 授予gradlew的执行权限
-跑: chmod+x项目_源/gradlew
+    - name: Grant execute permission for gradlew
+      run: chmod +x project_source/gradlew
 
--姓名: 使用渐变生成
-跑: CD project_source&&./gradlew汇编调试--stacktrace
+    - name: Build with Gradle
+      run: cd project_source && ./gradlew assembleDebug --stacktrace
       
-    - 姓名: 上传安装包
-uses: 操作/上载工件@v4
-和……一起:
-姓名: app-debug
-路径: project_source/app/build/outputs/apk/debug/app-debug.APK
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: project_source/app/build/outputs/apk/debug/app-debug.apk
