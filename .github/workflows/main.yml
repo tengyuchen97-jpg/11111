@@ -22,15 +22,15 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Install NDK
-      run: echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;25.2.9519653"
+    - name: Install NDK (匹配源码中的版本)
+      run: echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;26.1.10909125"
 
-    - name: Add Xposed Repository
+    - name: Inject Aliyun Maven Mirrors
       run: |
-        echo "开始注入 Xposed 仓库地址..."
-        # 严格只查找 build.gradle 文件进行替换
-        find project_source -name "build.gradle" -type f -exec sed -i '/repositories {/a \        maven { url "https://api.xposed.info/" }' {} +
-        echo "注入完成！"
+        echo "正在将仓库替换为国内阿里云镜像以加速下载..."
+        # 寻找 settings.gradle 或 settings.gradle.kts
+        find project_source -name "settings.gradle*" -exec sed -i 's/google()/maven { url "https:\/\/maven.aliyun.com\/repository\/google" }\n        maven { url "https:\/\/maven.aliyun.com\/repository\/public" }/g' {} +
+        find project_source -name "settings.gradle*" -exec sed -i 's/mavenCentral()/maven { url "https:\/\/maven.aliyun.com\/repository\/public" }/g' {} +
 
     - name: Grant execute permission and Build
       run: |
