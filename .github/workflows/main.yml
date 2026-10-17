@@ -30,14 +30,19 @@ jobs:
         find project_source -name "settings.gradle*" -exec sed -i 's/google()/maven { url "https:\/\/maven.aliyun.com\/repository\/google" }\n        maven { url "https:\/\/maven.aliyun.com\/repository\/public" }/g' {} +
         find project_source -name "settings.gradle*" -exec sed -i 's/mavenCentral()/maven { url "https:\/\/maven.aliyun.com\/repository\/public" }/g' {} +
 
-    # ================= 魔法：帮你补全缺失的弹窗文件 =================
-    - name: Fix Missing LiquidGlassDialog
+    # ================= 魔法：无中生有，补全缺失的组件 =================
+    - name: Fix Missing Components
       run: |
         DIR_PATH=$(find project_source -type d -path "*/com/tengcd/czr/ui/components" | head -n 1)
         mkdir -p "$DIR_PATH"
-        echo "正在为你生成缺失的弹窗文件: $DIR_PATH/LiquidGlassDialog.kt"
+        
+        echo "1. 正在生成缺失的 LiquidGlassDialog.kt..."
         echo "cGFja2FnZSBjb20udGVuZ2NkLmN6ci51aS5jb21wb25lbnRzCgppbXBvcnQgYW5kcm9pZHguY29tcG9zZS5tYXRlcmlhbDMuQWxlcnREaWFsb2cKaW1wb3J0IGFuZHJvaWR4LmNvbXBvc2UubWF0ZXJpYWwzLlRleHQKaW1wb3J0IGFuZHJvaWR4LmNvbXBvc2UubWF0ZXJpYWwzLkJ1dHRvbgppbXBvcnQgYW5kcm9pZHguY29tcG9zZS5ydW50aW1lLkNvbXBvc2FibGUKCkBDb21wb3NhYmxlCmZ1biBMaXF1aWRHbGFzc0RpYWxvZygKICAgIGRhcms6IEJvb2xlYW4sCiAgICB0aXRsZTogU3RyaW5nLAogICAgbWVzc2FnZTogU3RyaW5nLAogICAgY29uZmlybVRleHQ6IFN0cmluZywKICAgIGNhbmNlbFRleHQ6IFN0cmluZywKICAgIG9uQ29uZmlybTogKCkgLT4gVW5pdCwKICAgIG9uRGlzbWlzczogKCkgLT4gVW5pdAopIHsKICAgIEFsZXJ0RGlhbG9nKAogICAgICAgIG9uRGlzbWlzc1JlcXVlc3QgPSBvbkRpc21pc3MsCiAgICAgICAgdGl0bGUgPSB7IFRleHQodGV4dCA9IHRpdGxlKSB9LAogICAgICAgIHRleHQgPSB7IFRleHQodGV4dCA9IG1lc3NhZ2UpIH0sCiAgICAgICAgY29uZmlybUJ1dHRvbiA9IHsKICAgICAgICAgICAgQnV0dG9uKG9uQ2xpY2sgPSBvbkNvbmZpcm0pIHsKICAgICAgICAgICAgICAgIFRleHQodGV4dCA9IGNvbmZpcm1UZXh0KQogICAgICAgICAgICB9CiAgICAgICAgfSwKICAgICAgICBkaXNtaXNzQnV0dG9uID0gewogICAgICAgICAgICBCdXR0b24ob25DbGljayA9IG9uRGlzbWlzcykgewogICAgICAgICAgICAgICAgVGV4dCh0ZXh0ID0gY2FuY2VsVGV4dCkKICAgICAgICAgICAgfQogICAgICAgIH0KICAgICkKfQ==" | base64 -d > "$DIR_PATH/LiquidGlassDialog.kt"
-        echo "弹窗文件补齐成功！"
+
+        echo "2. 正在生成缺失的 DownloadProgressDialog.kt..."
+        echo "cGFja2FnZSBjb20udGVuZ2NkLmN6ci51aS5jb21wb25lbnRzCgppbXBvcnQgYW5kcm9pZHguY29tcG9zZS5mb3VuZGF0aW9uLmxheW91dC4qCmltcG9ydCBhbmRyb2lkeC5jb21wb3NlLm1hdGVyaWFsMy4qCmltcG9ydCBhbmRyb2lkeC5jb21wb3NlLnJ1bnRpbWUuQ29tcG9zYWJsZQppbXBvcnQgYW5kcm9pZHguY29tcG9zZS51aS5BbGlnbm1lbnQKaW1wb3J0IGFuZHJvaWR4LmNvbXBvc2UudWkuTW9kaWZpZXIKaW1wb3J0IGFuZHJvaWR4LmNvbXBvc2UudWkudW5pdC5kcAoKQENvbXBvc2FibGUKZnVuIERvd25sb2FkUHJvZ3Jlc3NEaWFsb2coCiAgICBkYXJrOiBCb29sZWFuLAogICAgdGl0bGU6IFN0cmluZz8sCiAgICBtZXNzYWdlOiBTdHJpbmc/LAogICAgcHJvZ3Jlc3M6IEZsb2F0LAogICAgaW5kZXRlcm1pbmF0ZTogQm9vbGVhbgopIHsKICAgIEFsZXJ0RGlhbG9nKAogICAgICAgIG9uRGlzbWlzc1JlcXVlc3QgPSB7IH0sCiAgICAgICAgdGl0bGUgPSB7IFRleHQodGV4dCA9IHRpdGxlID8/ICIiKSB9LAogICAgICAgIHRleHQgPSB7CiAgICAgICAgICAgIENvbHVtbiho b3Jpem9udGFsQWxpZ25tZW50ID0gQWxpZ25tZW50LkNlbnRlckhvcml6b250YWxseSkgewogICAgICAgICAgICAgICAgaWYgKGluZGV0ZXJtaW5hdGUpIHsKICAgICAgICAgICAgICAgICAgICBDaXJjdWxhclByb2dyZXNzSW5kaWNhdG9yKCkKICAgICAgICAgICAgICAgIH0gZWxzZSB7CiAgICAgICAgICAgICAgICAgICAgTGluZWFyUHJvZ3Jlc3NJbmRpY2F0b3IocHJvZ3Jlc3MgPSB7IHByb2dyZXNzIH0sIG1vZGlmaWVyID0gTW9kaWZpZXIuZmlsbE1heFdpZHRoKCkpCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICBTcGFjZXIobW9kaWZpZXIgPSBNb2RpZmllci5oZWlnaHQoOC5kcCkpCiAgICAgICAgICAgICAgICBUZXh0KHRleHQgPSBtZXNzYWdlID8/ICIiKQogICAgICAgICAgICB9CiAgICAgICAgfSwKICAgICAgICBjb25maXJtQnV0dG9uID0geyB9CiAgICApCn0K" | base64 -d > "$DIR_PATH/DownloadProgressDialog.kt"
+        
+        echo "组件补齐完成！"
 
     - name: Grant execute permission and Build
       run: |
