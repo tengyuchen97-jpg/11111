@@ -25,14 +25,20 @@ jobs:
     - name: Install NDK
       run: echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;25.2.9519653"
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x project_source/gradlew
-
-    - name: Build with Gradle
-      run: cd project_source && ./gradlew assembleDebug --stacktrace
-      
+    - name: Grant execute permission and Build
+      run: |
+        # 自动寻找 gradlew 所在的真实目录
+        GRADLE_DIR=$(find project_source -name gradlew -exec dirname {} \; | head -n 1)
+        echo "找到 gradlew 的目录为: $GRADLE_DIR"
+        # 给执行权限
+        chmod +x "$GRADLE_DIR/gradlew"
+        # 进入该目录并开始打包
+        cd "$GRADLE_DIR"
+        ./gradlew assembleDebug --stacktrace
+        
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
-        path: project_source/app/build/outputs/apk/debug/app-debug.apk
+        # 使用通配符 ** 自动寻找生成的 APK
+        path: project_source/**/app/build/outputs/apk/debug/app-debug.apk
