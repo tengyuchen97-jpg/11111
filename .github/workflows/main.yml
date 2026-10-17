@@ -25,6 +25,14 @@ jobs:
     - name: Install NDK
       run: echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;25.2.9519653"
 
+    - name: Add Xposed Repository
+      run: |
+        echo "开始注入 Xposed 仓库地址..."
+        # 自动寻找所有的 gradle 文件，并在 repositories 块内插入仓库地址
+        find project_source -name "*.gradle" -type f -exec sed -i '/repositories {/a \        maven { url "https://api.xposed.info/" }' {} +
+        echo "注入完成，检查结果："
+        find project_source -name "*.gradle" -exec grep -H "xposed.info" {} +
+
     - name: Grant execute permission and Build
       run: |
         # 自动寻找 gradlew 所在的真实目录
