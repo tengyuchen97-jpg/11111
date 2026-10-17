@@ -28,19 +28,15 @@ jobs:
     - name: Add Xposed Repository
       run: |
         echo "开始注入 Xposed 仓库地址..."
-        # 自动寻找所有的 gradle 文件，并在 repositories 块内插入仓库地址
-        find project_source -name "*.gradle" -type f -exec sed -i '/repositories {/a \        maven { url "https://api.xposed.info/" }' {} +
-        echo "注入完成，检查结果："
-        find project_source -name "*.gradle" -exec grep -H "xposed.info" {} +
+        # 严格只查找 build.gradle 文件进行替换
+        find project_source -name "build.gradle" -type f -exec sed -i '/repositories {/a \        maven { url "https://api.xposed.info/" }' {} +
+        echo "注入完成！"
 
     - name: Grant execute permission and Build
       run: |
-        # 自动寻找 gradlew 所在的真实目录
         GRADLE_DIR=$(find project_source -name gradlew -exec dirname {} \; | head -n 1)
         echo "找到 gradlew 的目录为: $GRADLE_DIR"
-        # 给执行权限
         chmod +x "$GRADLE_DIR/gradlew"
-        # 进入该目录并开始打包
         cd "$GRADLE_DIR"
         ./gradlew assembleDebug --stacktrace
         
@@ -48,5 +44,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
-        # 使用通配符 ** 自动寻找生成的 APK
         path: project_source/**/app/build/outputs/apk/debug/app-debug.apk
