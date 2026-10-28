@@ -25,13 +25,13 @@ jobs:
     - name: Install NDK
       run: echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;26.1.10909125"
 
-    # 核心修复：强制将 Gradle 官方下载源替换为腾讯云高速镜像
+    # 核心修改：替换为阿里云 Gradle 镜像
     - name: Inject Gradle Mirror
       run: |
-        find project_source -name "gradle-wrapper.properties" -exec sed -i 's|services.gradle.org/distributions|mirrors.cloud.tencent.com/gradle|g' {} +
-        echo "Gradle 镜像注入完成！"
+        find project_source -name "gradle-wrapper.properties" -exec sed -i 's|services.gradle.org/distributions|mirrors.aliyun.com/gradle|g' {} +
+        echo "Gradle 镜像替换完成"
 
-    # 保留阿里云 Maven 镜像（解决依赖下载问题）
+    # 保留阿里云 Maven 镜像
     - name: Inject Aliyun Maven Mirrors
       run: |
         find project_source -name "settings.gradle*" -exec sed -i 's/google()/maven("https:\/\/maven.aliyun.com\/repository\/google")/g' {} +
