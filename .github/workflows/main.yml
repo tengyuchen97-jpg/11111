@@ -25,23 +25,28 @@ jobs:
     - name: Install NDK
       run: echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;26.1.10909125"
 
-    # 核心修复 1：使用 Gradle 官方备用高速 CDN 替换连不上的主域名
-    - name: Fix Gradle Download URL
-      run: |
-        find project_source -name "gradle-wrapper.properties" -exec sed -i 's|services.gradle.org/distributions|downloads.gradle-dn.com/distributions|g' {} +
-        echo "Gradle 下载地址替换完成！"
-
-    # 核心修复 2：注入阿里云 Maven 镜像（保障依赖包顺利下载）
+    # 【新增：核心修复】强行注入阿里云镜像，解决云端下载依赖超时问题
     - name: Inject Aliyun Maven Mirrors
       run: |
+        echo "正在替换官方仓库为阿里云镜像..."
+        # 1. 处理 settings.gradle 和 settings.gradle.kts
         find project_source -name "settings.gradle*" -exec sed -i 's/google()/maven("https:\/\/maven.aliyun.com\/repository\/google")/g' {} +
         find project_source -name "settings.gradle*" -exec sed -i 's/mavenCentral()/maven("https:\/\/maven.aliyun.com\/repository\/public")/g' {} +
+        find project_source -name "settings.gradle*" -exec sed -i 's/gradlePluginPortal()/maven("https:\/\/maven.aliyun.com\/repository\/gradle-plugin")\n        gradlePluginPortal()/g' {} +
+        # 处理 Groovy 语法的 settings.gradle
+        find project_source -name "settings.gradle" -exec sed -i 's/google()/maven { url "https:\/\/maven.aliyun.com\/repository\/google" }/g' {} +
+        find project_source -name "settings.gradle" -exec sed -i 's/mavenCentral()/maven { url "https:\/\/maven.aliyun.com\/repository\/public" }/g' {} +
+        
+        # 2. 处理根目录和 module 的 build.gradle 和 build.gradle.kts
         find project_source -name "build.gradle*" -exec sed -i 's/google()/maven("https:\/\/maven.aliyun.com\/repository\/google")/g' {} +
         find project_source -name "build.gradle*" -exec sed -i 's/mavenCentral()/maven("https:\/\/maven.aliyun.com\/repository\/public")/g' {} +
-
+        find project_source -name "build.gradle" -exec sed -i 's/google()/maven { url "https:\/\/maven.aliyun.com\/repository\/google" }/g' {} +
+        find project_source -name "build.gradle" -exec sed -i 's/mavenCentral()/maven { url "https:\/\/maven.aliyun.com\/repository\/public" }/g' {} +
+        echo "镜像注入完成！"
     - name: Grant execute permission and Build
       run: |
         GRADLE_DIR=$(find project_source -name gradlew -exec dirname {} \; | head -n 1)
+        echo "找到 gradlew 的目录为: $GRADLE_DIR"
         chmod +x "$GRADLE_DIR/gradlew"
         cd "$GRADLE_DIR"
         ./gradlew assembleDebug --stacktrace
